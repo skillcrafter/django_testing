@@ -15,11 +15,11 @@ def enable_db_access_for_all_tests(db):
 @pytest.mark.parametrize(
     'name, args',
     (
-            ('news:home', None),
-            ('news:detail', pytest.lazy_fixture('news_id_for_args')),
-            ('users:login', None),
-            ('users:logout', None),
-            ('users:signup', None),
+        ('news:home', None),
+        ('news:detail', pytest.lazy_fixture('news_id_for_args')),
+        ('users:login', None),
+        ('users:logout', None),
+        ('users:signup', None),
     )
 )
 def test_pages_availability_for_anonymous_user(client, name, args):
@@ -31,8 +31,8 @@ def test_pages_availability_for_anonymous_user(client, name, args):
 @pytest.mark.parametrize(
     'name, args',
     (
-            ('news:edit', pytest.lazy_fixture('comment_id_for_args')),
-            ('news:delete', pytest.lazy_fixture('comment_id_for_args')),
+        ('news:edit', pytest.lazy_fixture('comment_id_for_args')),
+        ('news:delete', pytest.lazy_fixture('comment_id_for_args')),
     )
 )
 def test_redirects(client, name, args):
@@ -46,15 +46,15 @@ def test_redirects(client, name, args):
 @pytest.mark.parametrize(
     'parametrized_client, expected_status',
     (
-            (pytest.lazy_fixture('admin_client'), HTTPStatus.NOT_FOUND),
-            (pytest.lazy_fixture('author_client'), HTTPStatus.OK)
+        (pytest.lazy_fixture('admin_client'), HTTPStatus.NOT_FOUND),
+        (pytest.lazy_fixture('author_client'), HTTPStatus.OK)
     )
 )
 @pytest.mark.parametrize(
     'name, args',
     (
-            ('news:edit', pytest.lazy_fixture('comment_id_for_args')),
-            ('news:delete', pytest.lazy_fixture('comment_id_for_args')),
+        ('news:edit', pytest.lazy_fixture('comment_id_for_args')),
+        ('news:delete', pytest.lazy_fixture('comment_id_for_args')),
     )
 )
 def test_availability_for_comment_edit_and_delete(

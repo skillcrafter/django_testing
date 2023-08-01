@@ -37,8 +37,8 @@ def test_comments_order(client, comments, news_id_for_args):
 @pytest.mark.parametrize(
     'parametrized_client, form_on_page',
     (
-            (pytest.lazy_fixture('author_client'), True),
-            (pytest.lazy_fixture('client'), False),
+        (pytest.lazy_fixture('author_client'), True),
+        (pytest.lazy_fixture('client'), False),
     )
 )
 def test_pages_data_for_different_users(
