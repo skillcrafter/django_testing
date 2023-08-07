@@ -20,7 +20,8 @@ class TestNotesCreation(TestCase):
         cls.url = reverse('notes:add', None)
         cls.form_data = {
             'title': 'Заголовок', 'text': 'Текс',
-            'slug': cls.TEST_SLUG, 'author': cls.user, }
+            'slug': cls.TEST_SLUG,
+        }
 
     def test_note_creation(self):
         self.client.post(self.url, data=self.form_data)
@@ -32,6 +33,7 @@ class TestNotesCreation(TestCase):
         note = Note.objects.get()
         self.assertEqual(note.text, self.form_data['text'])
         self.assertEqual(note.title, self.form_data['title'])
+        self.assertEqual(note.slug, self.form_data['slug'])
         self.assertEqual(note.author, self.user)
 
     def test_slug_automatically_creation(self):
@@ -42,8 +44,10 @@ class TestNotesCreation(TestCase):
 
     def test_creation_couple_of_similar_slug(self):
         self.auth_client.post(self.url, data=self.form_data)
-        notes_counts = Note.objects.count()
-        self.assertEqual(notes_counts, 1)
+        notes_counts_first_step = Note.objects.count()
+        self.auth_client.post(self.url, data=self.form_data)
+        notes_counts_second_step = Note.objects.count()
+        self.assertEqual(notes_counts_first_step, notes_counts_second_step)
 
 
 class TestNotesEditDelete(TestCase):
@@ -79,7 +83,6 @@ class TestNotesEditDelete(TestCase):
     def test_notes_deletion_with_right_permission(self):
         response = self.author_client.delete(self.delete_url)
         self.assertRedirects(response, self.redirect_url)
-        # print('---------',response, self.redirect_url)
 
     def test_editing_restriction_foreign_notes(self):
         response = self.other_client.post(self.edit_url,

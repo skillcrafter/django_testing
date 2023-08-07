@@ -1,51 +1,76 @@
+from notes.forms import NoteForm
+from collections import namedtuple
+
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from notes.models import Note
 
-User = get_user_model()
+AUTHOR = 'Автор'
+SLUG = 'note-slug'
+USER = 'Пользователь'
+USER_MODEL = get_user_model()
+FIELD_NAMES = ('title', 'text', 'slug', 'author')
+FIELD_DATA = ('Заголовок', 'Текст заметки', SLUG)
+FIELD_NEW_DATA = ('Новый заголовок', 'Новый текст', 'new-slug')
+
+URL_NAME = namedtuple(
+    'NAME',
+    [
+        'home',
+        'add',
+        'list',
+        'detail',
+        'edit',
+        'delete',
+        'success',
+        'login',
+        'logout',
+        'signup',
+    ],
+)
+
+URL = URL_NAME(
+    reverse('notes:home'),
+    reverse('notes:add'),
+    reverse('notes:list'),
+    reverse('notes:detail', args=(SLUG,)),
+    reverse('notes:edit', args=(SLUG,)),
+    reverse('notes:delete', args=(SLUG,)),
+    reverse('notes:success'),
+    reverse('users:login'),
+    reverse('users:logout'),
+    reverse('users:signup'),
+)
 
 
-class TestContent(TestCase):
-    NOTES_URL = reverse('notes:list')
-
+class SetUpTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.author = User.objects.create(username='testUser')
-        cls.other = User.objects.create(username='otherUser')
-        cls.note_owner = Note.objects.create(
-            title='Заголовок1', text='Текст1',
-            slug='slug1', author=cls.author,)
-        cls.note_noname_user = Note.objects.create(
-            title='Заголовок2', text='Текст2',
-            slug='slug2', author=cls.other,)
+        cls.author = USER_MODEL.objects.create(username=AUTHOR)
+        cls.author_client = Client()
+        cls.author_client.force_login(cls.author)
+        cls.user = USER_MODEL.objects.create(username=USER)
+        cls.user_client = Client()
+        cls.user_client.force_login(cls.user)
+        cls.note = Note.objects.create(
+            **dict(zip(FIELD_NAMES, (*FIELD_DATA, cls.author)))
+        )
 
+
+class TestNoteList(SetUpTestCase):
     def test_list_context(self):
-        self.client.force_login(self.author)
-        response = self.client.get(self.NOTES_URL)
-        object_list = response.context['object_list']
-        self.assertIn(self.note_owner, object_list)
-
-    def test_different_list(self):
-        users_notes = (
-            (self.author, self.note_noname_user),
-            (self.other, self.note_owner),)
-
-        for user, note in users_notes:
-            self.client.force_login(user)
-            response = self.client.get(self.NOTES_URL)
-            object_list = response.context['object_list']
-            self.assertNotIn(note, object_list)
+        clients = (
+            (self.author_client, True),
+            (self.user_client, False),
+        )
+        for client, value in clients:
+            with self.subTest(client=client):
+                object_list = client.get(URL.list).context['object_list']
+                self.assertTrue((self.note in object_list) is value)
 
     def test_form_context(self):
-        urls = (
-            ('notes:add', None),
-            ('notes:edit', (self.note_owner.slug,)),)
-        self.client.force_login(self.author)
-
-        for name, args in urls:
-            with self.subTest(name=name):
-                url = reverse(name, args=args)
-                response = self.client.get(url)
-            self.assertIn('form', response.context)
+        for url in (URL.add, URL.edit):
+            with self.subTest(url=url):
+                self.assertIsInstance(self.author_client.get(url).context['form'],NoteForm,)
