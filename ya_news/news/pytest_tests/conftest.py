@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
-from http import HTTPStatus
 import pytest
+
 from django.conf import settings
 from django.utils import timezone
 
@@ -20,7 +20,7 @@ def author_client(author, client):
 
 @pytest.fixture
 def news(author):
-    note = News.objects.create(  # Создаём объект заметки.
+    note = News.objects.create(
         title='Заголовок',
         text='Текст заметки',
     )
