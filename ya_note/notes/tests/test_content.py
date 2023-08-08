@@ -73,5 +73,4 @@ class TestNoteList(SetUpTestCase):
     def test_form_context(self):
         for url in (URL.add, URL.edit):
             with self.subTest(url=url):
-                self.assertIsInstance(
-                    self.author_client.get(url).context['form'], NoteForm,)
+                self.assertIsInstance(self.author_client.get(url).context['form'],NoteForm,)

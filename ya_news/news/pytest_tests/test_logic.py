@@ -7,10 +7,13 @@ from pytest_django.asserts import assertFormError, assertRedirects
 from news.forms import BAD_WORDS, WARNING
 from news.models import Comment
 
+NEW_COMMENT_TEXT = 'Новый текст комментария'
+
 
 @pytest.mark.django_db
 def test_noname_user_cant_create_comment(
         client, form_data, news_id_for_args):
+    assert Comment.objects.count() == 0
     url = reverse('news:detail', args=news_id_for_args)
     client.post(url, data=form_data)
     assert Comment.objects.count() == 0
@@ -37,7 +40,7 @@ def test_user_cant_use_bad_words(author_client, form_data, news_id_for_args):
 def test_the_author_granded_to_edit_comment(
         author_client, form_data,
         comment, news_id_for_args,
-        comment_id_for_args):
+        comment_id_for_args, author):
     news_url = reverse('news:detail', args=news_id_for_args)
     url_to_comments = news_url + '#comments'
     edit_url = reverse('news:edit', args=comment_id_for_args)
@@ -45,6 +48,7 @@ def test_the_author_granded_to_edit_comment(
     assertRedirects(response, url_to_comments)
     comment.refresh_from_db()
     assert comment.text == form_data['text']
+    assert comment.author == author
 
 
 def test_noname_user_cant_edit_comment(admin_client,
@@ -64,9 +68,8 @@ def test_author_can_delete_comment(
     url_to_comments = news_url + '#comments'
     delete_url = reverse('news:delete', args=comment_id_for_args)
     response = author_client.delete(delete_url)
-    # print(response)
     assertRedirects(response, url_to_comments)
-    assert Comment.objects.count() == 0
+    assert response != url_to_comments
 
 
 def test_user_cant_delete_comment_of_another_user(
