@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-
+from http import HTTPStatus
 import pytest
 from django.conf import settings
 from django.utils import timezone
@@ -19,14 +19,22 @@ def author_client(author, client):
 
 
 @pytest.fixture
-def news():
-    news = News.objects.create(title='Заголовок', text='Текст')
-    return news
+def news(author):
+    note = News.objects.create(  # Создаём объект заметки.
+        title='Заголовок',
+        text='Текст заметки',
+    )
+    return note
 
 
 @pytest.fixture
 def news_id_for_args(news):
     return news.id,
+
+
+@pytest.fixture
+def news_pk(news):
+    return news.pk,
 
 
 @pytest.fixture
@@ -51,7 +59,7 @@ def news_objects():
     all_news = [
         News(
             title=f'Новость {index}',
-            text='Просто текст.',
+            text='Tекст.',
             date=today - timedelta(days=index)
         )
         for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
