@@ -24,7 +24,6 @@ from news.pytest_tests.conftest import (ADMIN, AUTHOR, CLIENT,
             (DELETE_URL, ADMIN, HTTPStatus.NOT_FOUND),
     ),
 )
-
 def test_pages_availability_for_anonymous_user(
         url, parametrized_client, status, comment):
     response = parametrized_client.get(url)
@@ -34,11 +33,10 @@ def test_pages_availability_for_anonymous_user(
 @pytest.mark.parametrize(
     'name, args',
     (
-            ('news:edit', pytest.lazy_fixture('comment_id_for_args')),
-            ('news:delete', pytest.lazy_fixture('comment_id_for_args')),
+        ('news:edit', pytest.lazy_fixture('comment_id_for_args')),
+        ('news:delete', pytest.lazy_fixture('comment_id_for_args')),
     )
 )
-
 def test_redirects(client, name, args):
     login_url = reverse('users:login')
     url = reverse(name, args=args)
