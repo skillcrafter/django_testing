@@ -8,6 +8,13 @@ from notes.models import Note
 
 User = get_user_model()
 
+SLUG = 'slug'
+
+EDIT_URL = reverse('notes:edit', args=(SLUG,))
+ADD_URL = reverse('notes:add')
+DELETE_URL = reverse('notes:delete', args=(SLUG,))
+SUCCESS_URL = reverse('notes:success')
+
 
 class TestNotesCreation(TestCase):
     TEST_SLUG = "Slug_text"
@@ -17,9 +24,9 @@ class TestNotesCreation(TestCase):
         cls.user = User.objects.create(username='user')
         cls.auth_client = Client()
         cls.auth_client.force_login(cls.user)
-        cls.url = reverse('notes:add', None)
+        cls.url = ADD_URL
         cls.form_data = {
-            'title': 'Заголовок', 'text': 'Текс',
+            'title': 'Заголовок', 'text': 'Текст',
             'slug': cls.TEST_SLUG,
         }
 
@@ -60,16 +67,14 @@ class TestNotesEditDelete(TestCase):
         cls.author = User.objects.create(username='testUser')
         cls.note_author = Note.objects.create(
             title='Заголовок1', text=cls.ORIGINAL_TEXT,
-            slug='slug', author=cls.author,)
+            slug='slug', author=cls.author, )
         cls.author_client = Client()
         cls.author_client.force_login(cls.author)
         cls.other_client = Client()
         cls.other_client.force_login(cls.other)
-        cls.edit_url = reverse('notes:edit',
-                               args=(cls.note_author.slug,))
-        cls.delete_url = reverse('notes:delete',
-                                 args=(cls.note_author.slug,))
-        cls.redirect_url = reverse('notes:success', None, )
+        cls.edit_url = EDIT_URL
+        cls.delete_url = DELETE_URL
+        cls.redirect_url = SUCCESS_URL
         cls.form_data = {
             'title': 'Заголовок', 'text': cls.NEW_TEXT,
             'slug': 'qt', 'author': cls.author, }

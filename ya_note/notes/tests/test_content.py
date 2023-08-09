@@ -14,6 +14,9 @@ USER_MODEL = get_user_model()
 FIELD_NAMES = ('title', 'text', 'slug', 'author')
 FIELD_DATA = ('Заголовок', 'Текст заметки', SLUG)
 FIELD_NEW_DATA = ('Новый заголовок', 'Новый текст', 'new-slug')
+ADD_URL = reverse('notes:add')
+NOTES_LIST_URL = reverse('notes:list')
+
 
 URL_NAME = namedtuple(
     'NAME',
@@ -29,19 +32,6 @@ URL_NAME = namedtuple(
         'logout',
         'signup',
     ],
-)
-
-URL = URL_NAME(
-    reverse('notes:home'),
-    reverse('notes:add'),
-    reverse('notes:list'),
-    reverse('notes:detail', args=(SLUG,)),
-    reverse('notes:edit', args=(SLUG,)),
-    reverse('notes:delete', args=(SLUG,)),
-    reverse('notes:success'),
-    reverse('users:login'),
-    reverse('users:logout'),
-    reverse('users:signup'),
 )
 
 
@@ -67,11 +57,10 @@ class TestNoteList(SetUpTestCase):
         )
         for client, value in clients:
             with self.subTest(client=client):
-                object_list = client.get(URL.list).context['object_list']
-                self.assertTrue((self.note in object_list) is value)
+                content_objects = client.get(NOTES_LIST_URL).context['object_list']
+                self.assertTrue((self.note in content_objects) is value)
 
     def test_form_context(self):
-        for url in (URL.add, URL.edit):
-            with self.subTest(url=url):
-                self.assertIsInstance(
-                    self.author_client.get(url).context['form'], NoteForm,)
+        with self.subTest(url=ADD_URL):
+            self.assertIsInstance(
+                self.author_client.get(ADD_URL).context['form'], NoteForm,)

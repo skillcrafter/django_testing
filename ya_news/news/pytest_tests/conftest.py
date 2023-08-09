@@ -1,10 +1,34 @@
-from datetime import datetime, timedelta
 import pytest
+from datetime import datetime, timedelta
 
-from django.conf import settings
+from django.urls import reverse
 from django.utils import timezone
+from django.conf import settings
+from pytest_lazyfixture import lazy_fixture
 
-from news.models import Comment, News
+from news.models import News, Comment
+
+PK = 1
+COMMENT_TEXT = 'Комментарий'
+NEW_COMMENT_TEXT = 'Новый текст комментария'
+ADMIN = lazy_fixture('admin_client')
+AUTHOR = lazy_fixture('author_client')
+CLIENT = lazy_fixture('client')
+
+
+HOME_URL = reverse('news:home')
+DETAIL_URL = reverse('news:detail', args=(PK,))
+LOGIN_URL = reverse('users:login')
+LOGOUT_URL = reverse('users:logout')
+SIGNUP_URL = reverse('users:signup')
+EDIT_URL = reverse('news:edit', args=(PK,))
+DELETE_URL = reverse('news:delete', args=(PK,))
+
+
+@pytest.fixture
+def urls(parametrized_client):
+    urls = reverse('news:home')
+    return urls
 
 
 @pytest.fixture
