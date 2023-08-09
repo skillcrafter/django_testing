@@ -57,7 +57,8 @@ class TestNoteList(SetUpTestCase):
         )
         for client, value in clients:
             with self.subTest(client=client):
-                content_objects = client.get(NOTES_LIST_URL).context['object_list']
+                content_objects = client.get(
+                    NOTES_LIST_URL).context['object_list']
                 self.assertTrue((self.note in content_objects) is value)
 
     def test_form_context(self):
